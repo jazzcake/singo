@@ -62,14 +62,14 @@ func (rm *RoomMgr) notifyNewClient(roomID string, nc *model.Client) error {
 		return err
 	}
 
-	// ÀÌ·¸°Ô json.Marshal ( json.Marshal ) ÇÏ¸é BASE64·Î ¹­¾î¹ö¸°´Ù.
+	// ì´ë ‡ê²Œ json.Marshal ( json.Marshal ) í•˜ë©´ BASE64ë¡œ ë¬¶ì–´ë²„ë¦°ë‹¤.
 	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID})
 	msg := &model.Message{
 		Type:    model.MessageTypeNewClient,
 		Payload: payload,
 	}
 	for _, c := range r.Clients {
-		// ÀÚ½Å¿¡°Ôµµ ¿À°Ô ÇÑ´Ù. ÀÌ °æ¿ì join ÇÁ·Î¼¼½º°¡ Á¾·áµÈ °ÍÀÌ´Ù.
+		// ìì‹ ì—ê²Œë„ ì˜¤ê²Œ í•œë‹¤. ì´ ê²½ìš° join í”„ë¡œì„¸ìŠ¤ê°€ ì¢…ë£Œëœ ê²ƒì´ë‹¤.
 		// if c.ID == nc.ID {
 		// 	continue
 		// }
@@ -88,7 +88,7 @@ func (rm *RoomMgr) notifyLeaveClient(roomID string, nc *model.Client) error {
 		return err
 	}
 
-	// ÀÌ·¸°Ô json.Marshal ( json.Marshal ) ÇÏ¸é BASE64·Î ¹­¾î¹ö¸°´Ù.
+	// ì´ë ‡ê²Œ json.Marshal ( json.Marshal ) í•˜ë©´ BASE64ë¡œ ë¬¶ì–´ë²„ë¦°ë‹¤.
 	payload, _ := json.Marshal(LeaveClientPayload{ClientID: nc.ID})
 	msg := &model.Message{
 		Type:    model.MessageTypeLeaveClient,
@@ -114,7 +114,7 @@ func (rm *RoomMgr) TransferSDPOffer(senderClient *model.Client, sdp *model.SDP, 
 		return err
 	}
 
-	// ÀÌ·¸°Ô json.Marshal ( json.Marshal ) ÇÏ¸é BASE64·Î ¹­¾î¹ö¸°´Ù.
+	// ì´ë ‡ê²Œ json.Marshal ( json.Marshal ) í•˜ë©´ BASE64ë¡œ ë¬¶ì–´ë²„ë¦°ë‹¤.
 	payload, _ := json.Marshal(SDPOfferPayload{ClientID: senderClient.ID, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPOffer,
@@ -140,7 +140,7 @@ func (rm *RoomMgr) TransferSDPAnswer(senderClient *model.Client, sdp *model.SDP,
 		return err
 	}
 
-	// ÀÌ·¸°Ô json.Marshal ( json.Marshal ) ÇÏ¸é BASE64·Î ¹­¾î¹ö¸°´Ù.
+	// ì´ë ‡ê²Œ json.Marshal ( json.Marshal ) í•˜ë©´ BASE64ë¡œ ë¬¶ì–´ë²„ë¦°ë‹¤.
 	payload, _ := json.Marshal(SDPAnswerPayload{ClientID: senderClient.ID, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPAnswer,
@@ -168,10 +168,10 @@ func (rm *RoomMgr) TransferICECandidate(senderClient *model.Client, candidate st
 		return err
 	}
 
-	// ÀÌ·¸°Ô json.Marshal ( json.Marshal ) ÇÏ¸é BASE64·Î ¹­¾î¹ö¸°´Ù.
+	// ì´ë ‡ê²Œ json.Marshal ( json.Marshal ) í•˜ë©´ BASE64ë¡œ ë¬¶ì–´ë²„ë¦°ë‹¤.
 	payload, _ := json.Marshal(SDPICECandidatePayload{ClientID: senderClient.ID, Candidate: candidate, SdpMid: sdp_mid, SdpIndex: sdp_index})
 	msg := &model.Message{
-		Type:    model.MessageTypeICECandidate, // .MessageTypeSDPAnswer, answer´Â ¾Æ´ÏÁö ¾Ê³ª?
+		Type:    model.MessageTypeICECandidate, // .MessageTypeSDPAnswer, answerëŠ” ì•„ë‹ˆì§€ ì•Šë‚˜?
 		Payload: payload,
 	}
 	for _, c := range r.Clients {

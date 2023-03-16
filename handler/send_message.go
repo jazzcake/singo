@@ -30,7 +30,7 @@ func (h *Handler) HandleSendMessage(ctx context.Context, c *model.Client, conn *
 				return
 			}
 		case <-t.C:
-			// ¾î¿ì Á¤½Å»ç³ª¿Í¼­ Àá½Ã ²ü½Ã´Ù
+			// ì–´ìš° ì •ì‹ ì‚¬ë‚˜ì™€ì„œ ìž ì‹œ ë•ì‹œë‹¤
 			// if err := sendMessage(conn, []byte(`{"type":"ping"}`)); err != nil {
 			// 	log.Println("disconnect: ", c.ID)
 			// 	return
