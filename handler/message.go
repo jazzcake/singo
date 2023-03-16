@@ -13,6 +13,7 @@ var (
 	ReceiveMessageTypeJoinRoom ReceiveMessageType = "join"
 	ReceiveMessageTypeOffer    ReceiveMessageType = "offer"
 	ReceiveMessageTypeAnswer   ReceiveMessageType = "answer"
+	ReceiveMessageTypeIceCandidate	ReceiveMessageType = "ice-candidate"
 )
 
 type ReceiveMessage struct {

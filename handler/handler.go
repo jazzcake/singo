@@ -9,10 +9,10 @@ import (
 )
 
 type Handler struct {
-	manager *manager.Room
+	manager *manager.RoomMgr
 }
 
-func NewHandler(man *manager.Room) *Handler {
+func NewHandler(man *manager.RoomMgr) *Handler {
 	return &Handler{manager: man}
 }
 

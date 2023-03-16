@@ -19,13 +19,13 @@ func NewRoom(name string) *Room {
 type Client struct {
 	ID   string
 	Name string
-	Send chan *Message
+	SendChan chan *Message
 }
 
 func NewClient(name string) *Client {
 	return &Client{
 		ID:   xid.New().String(),
 		Name: name,
-		Send: make(chan *Message, 16),
+		SendChan: make(chan *Message, 16),
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/tockn/singo/repository"
 )
 
-func NewRoomRepository() repository.Room {
+func NewRoomRepository() repository.RoomRepo {
 	return &roomRepository{
 		rooms: make(map[string]*model.Room, 0),
 	}

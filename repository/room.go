@@ -6,7 +6,7 @@ import (
 	"github.com/tockn/singo/model"
 )
 
-type Room interface {
+type RoomRepo interface {
 	Get(roomID string) (*model.Room, error)
 	Update(r *model.Room) (*model.Room, error)
 	Create(r *model.Room) (*model.Room, error)

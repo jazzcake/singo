@@ -1,26 +1,27 @@
 package manager
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/tockn/singo/model"
 	"github.com/tockn/singo/repository"
 )
 
-type Room struct {
-	roomRepo repository.Room
+type RoomMgr struct {
+	roomRepo repository.RoomRepo
 }
 
-func NewManager(roomRepo repository.Room) *Room {
-	return &Room{roomRepo: roomRepo}
+func NewManager(roomRepo repository.RoomRepo) *RoomMgr {
+	return &RoomMgr{roomRepo: roomRepo}
 }
 
-func (rm *Room) CreateRoom(name string) (*model.Room, error) {
+func (rm *RoomMgr) CreateRoom(name string) (*model.Room, error) {
 	r := model.NewRoom(name)
 	return rm.roomRepo.Create(r)
 }
 
-func (rm *Room) JoinRoom(c *model.Client, roomID string) error {
+func (rm *RoomMgr) JoinRoom(c *model.Client, roomID string) error {
 	r, err := rm.roomRepo.Get(roomID)
 	if err == repository.ErrNotFound {
 		r = model.NewRoom(roomID)
@@ -38,7 +39,7 @@ func (rm *Room) JoinRoom(c *model.Client, roomID string) error {
 	return rm.notifyNewClient(roomID, c)
 }
 
-func (rm *Room) LeaveRoom(c *model.Client) error {
+func (rm *RoomMgr) LeaveRoom(c *model.Client) error {
 	r, err := rm.roomRepo.GetByClientID(c.ID)
 	if err != nil {
 		return err
@@ -55,20 +56,24 @@ type NewClientPayload struct {
 	ClientID string `json:"client_id"`
 }
 
-func (rm *Room) notifyNewClient(roomID string, nc *model.Client) error {
+func (rm *RoomMgr) notifyNewClient(roomID string, nc *model.Client) error {
 	r, err := rm.roomRepo.Get(roomID)
 	if err != nil {
 		return err
 	}
+
+	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
+	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID})
 	msg := &model.Message{
 		Type:    model.MessageTypeNewClient,
-		Payload: NewClientPayload{ClientID: nc.ID},
+		Payload: payload,
 	}
 	for _, c := range r.Clients {
-		if c.ID == nc.ID {
-			continue
-		}
-		c.Send <- msg
+		// 자신에게도 오게 한다. 이 경우 join 프로세스가 종료된 것이다.
+		// if c.ID == nc.ID {
+		// 	continue
+		// }
+		c.SendChan <- msg
 	}
 	return nil
 }
@@ -77,20 +82,23 @@ type LeaveClientPayload struct {
 	ClientID string `json:"client_id"`
 }
 
-func (rm *Room) notifyLeaveClient(roomID string, nc *model.Client) error {
+func (rm *RoomMgr) notifyLeaveClient(roomID string, nc *model.Client) error {
 	r, err := rm.roomRepo.Get(roomID)
 	if err != nil {
 		return err
 	}
+
+	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
+	payload, _ := json.Marshal(LeaveClientPayload{ClientID: nc.ID})
 	msg := &model.Message{
 		Type:    model.MessageTypeLeaveClient,
-		Payload: LeaveClientPayload{ClientID: nc.ID},
+		Payload: payload,
 	}
 	for _, c := range r.Clients {
 		if c.ID == nc.ID {
 			continue
 		}
-		c.Send <- msg
+		c.SendChan <- msg
 	}
 	return nil
 }
@@ -100,20 +108,23 @@ type SDPOfferPayload struct {
 	SDP      *model.SDP `json:"sdp"`
 }
 
-func (rm *Room) TransferSDPOffer(senderClient *model.Client, sdp *model.SDP, clientID string) error {
+func (rm *RoomMgr) TransferSDPOffer(senderClient *model.Client, sdp *model.SDP, clientID string) error {
 	r, err := rm.roomRepo.GetByClientID(senderClient.ID)
 	if err != nil {
 		return err
 	}
+
+	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
+	payload, _ := json.Marshal(SDPOfferPayload{ClientID: senderClient.ID, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPOffer,
-		Payload: SDPOfferPayload{ClientID: senderClient.ID, SDP: sdp},
+		Payload: payload,
 	}
 	for _, c := range r.Clients {
 		if c.ID != clientID {
 			continue
 		}
-		c.Send <- msg
+		c.SendChan <- msg
 	}
 	return nil
 }
@@ -123,38 +134,51 @@ type SDPAnswerPayload struct {
 	SDP      *model.SDP `json:"sdp"`
 }
 
-func (rm *Room) TransferSDPAnswer(senderClient *model.Client, sdp *model.SDP, clientID string) error {
+func (rm *RoomMgr) TransferSDPAnswer(senderClient *model.Client, sdp *model.SDP, clientID string) error {
 	r, err := rm.roomRepo.GetByClientID(senderClient.ID)
 	if err != nil {
 		return err
 	}
+
+	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
+	payload, _ := json.Marshal(SDPAnswerPayload{ClientID: senderClient.ID, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPAnswer,
-		Payload: SDPAnswerPayload{ClientID: senderClient.ID, SDP: sdp},
+		Payload: payload,
 	}
 	for _, c := range r.Clients {
 		if c.ID != clientID {
 			continue
 		}
-		c.Send <- msg
+		c.SendChan <- msg
 	}
 	return nil
 }
 
-func (rm *Room) TransferICECandidate(senderClient *model.Client, sdp *model.SDP, clientID string) error {
+type SDPICECandidatePayload struct {
+	ClientID string     `json:"client_id"`
+	Candidate string 	`json:"candidate"`
+	SdpMid string 		`json:"sdp_mid"`
+	SdpIndex int 		`json:"sdp_index"`
+}
+
+func (rm *RoomMgr) TransferICECandidate(senderClient *model.Client, candidate string, sdp_mid string, sdp_index int, clientID string) error {
 	r, err := rm.roomRepo.GetByClientID(senderClient.ID)
 	if err != nil {
 		return err
 	}
+
+	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
+	payload, _ := json.Marshal(SDPICECandidatePayload{ClientID: senderClient.ID, Candidate: candidate, SdpMid: sdp_mid, SdpIndex: sdp_index})
 	msg := &model.Message{
-		Type:    model.MessageTypeSDPAnswer,
-		Payload: SDPAnswerPayload{ClientID: senderClient.ID, SDP: sdp},
+		Type:    model.MessageTypeICECandidate, // .MessageTypeSDPAnswer, answer는 아니지 않나?
+		Payload: payload,
 	}
 	for _, c := range r.Clients {
 		if c.ID != clientID {
 			continue
 		}
-		c.Send <- msg
+		c.SendChan <- msg
 	}
 	return nil
 }

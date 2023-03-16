@@ -19,7 +19,7 @@ func (h *Handler) HandleSendMessage(ctx context.Context, c *model.Client, conn *
 	}()
 	for {
 		select {
-		case msg := <-c.Send:
+		case msg := <-c.SendChan:
 			bs, err := json.Marshal(msg)
 			if err != nil {
 				log.Println(err)
@@ -30,10 +30,11 @@ func (h *Handler) HandleSendMessage(ctx context.Context, c *model.Client, conn *
 				return
 			}
 		case <-t.C:
-			if err := sendMessage(conn, []byte(`{"type":"ping"}`)); err != nil {
-				log.Println("disconnect: ", c.ID)
-				return
-			}
+			// 어우 정신사나와서 잠시 끕시다
+			// if err := sendMessage(conn, []byte(`{"type":"ping"}`)); err != nil {
+			// 	log.Println("disconnect: ", c.ID)
+			// 	return
+			// }
 		case <-ctx.Done():
 			return
 		}

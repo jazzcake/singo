@@ -14,6 +14,8 @@ type SendClientID struct {
 
 // CreateConnectionでwebsocketコネクションを確立
 // Clientを作成してレスポンスとして通知する
+// CreateConnection에서 websocket커넥션 확립
+// Client를 작성하여 응답으로 통지하다
 func (h *Handler) CreateConnection(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -27,7 +29,7 @@ func (h *Handler) CreateConnection(w http.ResponseWriter, r *http.Request) {
 	payload, _ := json.Marshal(resp)
 	body, _ := json.Marshal(model.Message{
 		Type:    model.MessageTypeNotifyClientID,
-		Payload: payload,
+		Payload: payload, // 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
 	})
 	sendMessage(conn, body)
 }
