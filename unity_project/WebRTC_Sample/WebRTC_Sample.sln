@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.WebRTC.Samples", "Unity.WebRTC.Samples.csproj", "{0E38E742-62DE-5F77-FB5C-8188BBA4C18B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{BEB4904F-90CE-D756-78FF-5265402B0AF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{CDC7726B-64A7-CF29-A523-F5E6A4E2160B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E38E742-62DE-5F77-FB5C-8188BBA4C18B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E38E742-62DE-5F77-FB5C-8188BBA4C18B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E38E742-62DE-5F77-FB5C-8188BBA4C18B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E38E742-62DE-5F77-FB5C-8188BBA4C18B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB4904F-90CE-D756-78FF-5265402B0AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB4904F-90CE-D756-78FF-5265402B0AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB4904F-90CE-D756-78FF-5265402B0AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB4904F-90CE-D756-78FF-5265402B0AF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDC7726B-64A7-CF29-A523-F5E6A4E2160B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDC7726B-64A7-CF29-A523-F5E6A4E2160B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDC7726B-64A7-CF29-A523-F5E6A4E2160B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDC7726B-64A7-CF29-A523-F5E6A4E2160B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
