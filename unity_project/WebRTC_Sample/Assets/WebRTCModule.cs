@@ -23,6 +23,12 @@ namespace Signaling
         public string client_id { get; set; }
     }
 
+    public class ParseNewClient
+    {
+        public string client_id { get; set; }
+        public int index { get; set; }
+    }
+
     public class ParseWithSdp
     {
         public string client_id { get; set; }
@@ -461,7 +467,7 @@ public class WebRTCModule : MonoBehaviour
             var payload = JsonConvert.DeserializeObject<Signaling.ParseConnect>(payload_str);
             client_id = payload.client_id;
 
-            Debug_Log(string.Format("My client id is : {0}", client_id));
+            Debug_Log(string.Format("My client id is - client_id:{0}", client_id));
         }
 
         if (packet.type == "new-client")
@@ -469,7 +475,7 @@ public class WebRTCModule : MonoBehaviour
             var bytes = Convert.FromBase64String(packet.payload);
             string payload_str = Encoding.Default.GetString(bytes);
 
-            var payload = JsonConvert.DeserializeObject<Signaling.ParseConnect>(payload_str);
+            var payload = JsonConvert.DeserializeObject<Signaling.ParseNewClient>(payload_str);
 
             // check payload.client_id is same with client_id
             // if not, there is new client just joined.
@@ -491,7 +497,7 @@ public class WebRTCModule : MonoBehaviour
                 });
             }
 
-            Debug_Log(string.Format("New client is coming : {0}", payload.client_id));
+            Debug_Log(string.Format("New client is coming - client_id:{0}, index:{1}", payload.client_id, payload.index));
         }
 
         if (packet.type == "offer")

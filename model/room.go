@@ -6,6 +6,7 @@ type Room struct {
 	ID      string
 	Name    string
 	Clients map[string]*Client
+	Index int
 }
 
 func NewRoom(name string) *Room {
@@ -13,6 +14,7 @@ func NewRoom(name string) *Room {
 		ID:      name,
 		Name:    name,
 		Clients: make(map[string]*Client, 0),
+		Index: 0,
 	}
 }
 

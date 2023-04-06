@@ -32,11 +32,12 @@ func (rm *RoomMgr) JoinRoom(c *model.Client, roomID string) error {
 		return err
 	}
 	r.Clients[c.ID] = c
+	r.Index += 1
 	if _, err := rm.roomRepo.Update(r); err != nil {
 		return err
 	}
 	log.Printf("joined! clientID:%s, roomID: %s\n", c.ID, roomID)
-	return rm.notifyNewClient(roomID, c)
+	return rm.notifyNewClient(roomID, r.Index, c)
 }
 
 func (rm *RoomMgr) LeaveRoom(c *model.Client) error {
@@ -54,16 +55,17 @@ func (rm *RoomMgr) LeaveRoom(c *model.Client) error {
 
 type NewClientPayload struct {
 	ClientID string `json:"client_id"`
+	Index int `json:"index"`
 }
 
-func (rm *RoomMgr) notifyNewClient(roomID string, nc *model.Client) error {
+func (rm *RoomMgr) notifyNewClient(roomID string, index int, nc *model.Client) error {
 	r, err := rm.roomRepo.Get(roomID)
 	if err != nil {
 		return err
 	}
 
 	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
-	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID})
+	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID, Index: index})
 	msg := &model.Message{
 		Type:    model.MessageTypeNewClient,
 		Payload: payload,
