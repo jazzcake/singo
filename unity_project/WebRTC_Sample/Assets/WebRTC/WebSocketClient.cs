@@ -17,9 +17,16 @@ public class ParseConnect
     public string client_id { get; set; }
 }
 
+public class ParseNewClient
+{
+    public string client_id { get; set; }
+    public int index { get; set; }
+}
+
 public class ParseWithSdp
 {
     public string client_id { get; set; }
+    public int index { get; set; }
     public string sdp { get; set; }
 }
 
@@ -137,14 +144,14 @@ public class WebSocketClient : MonoBehaviour
             var bytes = Convert.FromBase64String(packet.payload);
             string payload_str = Encoding.Default.GetString(bytes);
 
-            var payload = JsonConvert.DeserializeObject<ParseConnect>(payload_str);
+            var payload = JsonConvert.DeserializeObject<ParseNewClient>(payload_str);
             // check payload.client_id is same with client_id
             // if not, there is new client just joined.
 
             if (payload.client_id == client_id)
                 this.status = "Joined";
 
-            Debug.LogFormat("New client is coming : {0}", payload.client_id);
+            Debug.LogFormat("New client is coming - client_id:{0}, index:{1}", payload.client_id, payload.index);
         }
 
         if (packet.type == "offer")
@@ -153,7 +160,7 @@ public class WebSocketClient : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<ParseWithSdp>(payload_str);
-            Debug.LogFormat("Got offer: {0}, {1}", payload.client_id, payload.sdp);
+            Debug.LogFormat("Got offer: client_id:{0}, index:{1}, sdp:{2}", payload.client_id, payload.index, payload.sdp);
         }
 
         if (packet.type == "answer")
@@ -162,7 +169,7 @@ public class WebSocketClient : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<ParseWithSdp>(payload_str);
-            Debug.LogFormat("Got answer: {0}, {1}", payload.client_id, payload.sdp);
+            Debug.LogFormat("Got answer: client_id:{0}, index:{1}, sdp:{2}", payload.client_id, payload.index, payload.sdp);
         }
 
         if (packet.type == "ice-candidate")
@@ -171,7 +178,7 @@ public class WebSocketClient : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<ParseWithSdp>(payload_str);
-            Debug.LogFormat("Got ice-candidate: {0}, {1}", payload.client_id, payload.sdp);
+            Debug.LogFormat("Got ice-candidate: client_id:{0}, index:{1}, sdp:{2}", payload.client_id, payload.index, payload.sdp);
         }
 
         if (packet.type == "leave-client")

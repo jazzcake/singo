@@ -31,13 +31,18 @@ func (rm *RoomMgr) JoinRoom(c *model.Client, roomID string) error {
 	} else if err != nil {
 		return err
 	}
+
+	// assign to client
+	c.Index = r.Index
+
 	r.Clients[c.ID] = c
 	r.Index += 1
 	if _, err := rm.roomRepo.Update(r); err != nil {
 		return err
 	}
+
 	log.Printf("joined! clientID:%s, roomID: %s\n", c.ID, roomID)
-	return rm.notifyNewClient(roomID, r.Index, c)
+	return rm.notifyNewClient(roomID, c)
 }
 
 func (rm *RoomMgr) LeaveRoom(c *model.Client) error {
@@ -55,17 +60,17 @@ func (rm *RoomMgr) LeaveRoom(c *model.Client) error {
 
 type NewClientPayload struct {
 	ClientID string `json:"client_id"`
-	Index int `json:"index"`
+	Index    int    `json:"index"`
 }
 
-func (rm *RoomMgr) notifyNewClient(roomID string, index int, nc *model.Client) error {
+func (rm *RoomMgr) notifyNewClient(roomID string, nc *model.Client) error {
 	r, err := rm.roomRepo.Get(roomID)
 	if err != nil {
 		return err
 	}
 
 	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
-	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID, Index: index})
+	payload, _ := json.Marshal(NewClientPayload{ClientID: nc.ID, Index: nc.Index})
 	msg := &model.Message{
 		Type:    model.MessageTypeNewClient,
 		Payload: payload,
@@ -107,6 +112,7 @@ func (rm *RoomMgr) notifyLeaveClient(roomID string, nc *model.Client) error {
 
 type SDPOfferPayload struct {
 	ClientID string     `json:"client_id"`
+	Index    int        `json:"index"`
 	SDP      *model.SDP `json:"sdp"`
 }
 
@@ -117,7 +123,7 @@ func (rm *RoomMgr) TransferSDPOffer(senderClient *model.Client, sdp *model.SDP, 
 	}
 
 	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
-	payload, _ := json.Marshal(SDPOfferPayload{ClientID: senderClient.ID, SDP: sdp})
+	payload, _ := json.Marshal(SDPOfferPayload{ClientID: senderClient.ID, Index: senderClient.Index, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPOffer,
 		Payload: payload,
@@ -133,6 +139,7 @@ func (rm *RoomMgr) TransferSDPOffer(senderClient *model.Client, sdp *model.SDP, 
 
 type SDPAnswerPayload struct {
 	ClientID string     `json:"client_id"`
+	Index    int        `json:"index"`
 	SDP      *model.SDP `json:"sdp"`
 }
 
@@ -143,7 +150,7 @@ func (rm *RoomMgr) TransferSDPAnswer(senderClient *model.Client, sdp *model.SDP,
 	}
 
 	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
-	payload, _ := json.Marshal(SDPAnswerPayload{ClientID: senderClient.ID, SDP: sdp})
+	payload, _ := json.Marshal(SDPAnswerPayload{ClientID: senderClient.ID, Index: senderClient.Index, SDP: sdp})
 	msg := &model.Message{
 		Type:    model.MessageTypeSDPAnswer,
 		Payload: payload,
@@ -158,10 +165,11 @@ func (rm *RoomMgr) TransferSDPAnswer(senderClient *model.Client, sdp *model.SDP,
 }
 
 type SDPICECandidatePayload struct {
-	ClientID string     `json:"client_id"`
-	Candidate string 	`json:"candidate"`
-	SdpMid string 		`json:"sdp_mid"`
-	SdpIndex int 		`json:"sdp_index"`
+	ClientID  string `json:"client_id"`
+	Index     int    `json:"index"`
+	Candidate string `json:"candidate"`
+	SdpMid    string `json:"sdp_mid"`
+	SdpIndex  int    `json:"sdp_index"`
 }
 
 func (rm *RoomMgr) TransferICECandidate(senderClient *model.Client, candidate string, sdp_mid string, sdp_index int, clientID string) error {
@@ -171,7 +179,7 @@ func (rm *RoomMgr) TransferICECandidate(senderClient *model.Client, candidate st
 	}
 
 	// 이렇게 json.Marshal ( json.Marshal ) 하면 BASE64로 묶어버린다.
-	payload, _ := json.Marshal(SDPICECandidatePayload{ClientID: senderClient.ID, Candidate: candidate, SdpMid: sdp_mid, SdpIndex: sdp_index})
+	payload, _ := json.Marshal(SDPICECandidatePayload{ClientID: senderClient.ID, Index: senderClient.Index, Candidate: candidate, SdpMid: sdp_mid, SdpIndex: sdp_index})
 	msg := &model.Message{
 		Type:    model.MessageTypeICECandidate, // .MessageTypeSDPAnswer, answer는 아니지 않나?
 		Payload: payload,

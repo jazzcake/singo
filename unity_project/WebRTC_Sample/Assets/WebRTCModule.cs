@@ -32,12 +32,14 @@ namespace Signaling
     public class ParseWithSdp
     {
         public string client_id { get; set; }
+        public int index { get; set; }
         public string sdp { get; set; }
     }
 
     public class ParseIceCandidate
     {
         public string client_id { get; set; }
+        public int index { get; set; }
         public string candidate { get; set; }
         public string sdp_mid { get; set; }
         public int sdp_index { get; set; }
@@ -506,7 +508,7 @@ public class WebRTCModule : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<Signaling.ParseWithSdp>(payload_str);
-            Debug_Log(string.Format("Got offer from: {0}, {1}", payload.client_id, payload.sdp));
+            Debug_Log(string.Format("Got offer from: client_id:{0}, index:{1}, sdp:{2}", payload.client_id, payload.index, payload.sdp));
 
             RTCSessionDescription desc = new RTCSessionDescription()
             {
@@ -526,7 +528,7 @@ public class WebRTCModule : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<Signaling.ParseWithSdp>(payload_str);
-            Debug_Log(string.Format("Got answer: {0}, {1}", payload.client_id, payload.sdp));
+            Debug_Log(string.Format("Got answer: client_id:{0}, index:{1}, sdp:{2}", payload.client_id, payload.index, payload.sdp));
 
             RTCSessionDescription desc = new RTCSessionDescription()
             {
@@ -546,7 +548,7 @@ public class WebRTCModule : MonoBehaviour
             string payload_str = Encoding.Default.GetString(bytes);
 
             var payload = JsonConvert.DeserializeObject<Signaling.ParseIceCandidate>(payload_str);
-            Debug_Log(string.Format("Got ice-candidate: {0}, {1}, {2}, {3}", payload.client_id, payload.candidate, payload.sdp_mid, payload.sdp_index));
+            Debug_Log(string.Format("Got ice-candidate: {0}, {1}, {2}, {3}, {4}", payload.client_id, payload.index, payload.candidate, payload.sdp_mid, payload.sdp_index));
 
             _actions.Enqueue(() =>
             {
